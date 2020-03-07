@@ -5,7 +5,7 @@
   ],
   "service": "spring_demo", 
   // Default path to open when attaching to a new container.
-  "workspaceFolder": "/usr/local/app",
+  "workspaceFolder": "/app",
 
   // An array of extension IDs that specify the extensions to
   // install inside the container when you first attach to it.
@@ -13,14 +13,14 @@
 
   // Any *default* container specific VS Code settings
   "settings": {
-    "terminal.integrated.shell.linux": "/bin/bash"
+    "terminal.integrated.shell.linux": "/bin/sh"
   },
 
   // An array port numbers to forward
   //"forwardPorts": [8000],
 
   // Container user VS Code should use when connecting
-  "remoteUser": "spring",
+  // "remoteUser": "spring",
 
   // Set environment variables for VS Code and sub-processes
   //"remoteEnv": { "MY_VARIABLE": "some-value" }

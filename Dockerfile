@@ -1,41 +1,73 @@
-FROM openjdk:11-jdk-slim as develop
+#
+# alpine jdk
+#
+FROM alpine:3.10.1 as build-jdk
 
-ENV APP_DIR /usr/local/app
+RUN apk update && \
+    apk --no-cache add openjdk11 && \
+    rm -rf /var/cache/apk/*
 
-# FROM amazoncorretto:11 as develop
-# RUN yum -y update && \
-#     yum -y install shadow-utils tar gzip
+ENV JAVA_HOME=/usr/lib/jvm/java-11-openjdk
+ENV PATH="$PATH:$JAVA_HOME/bin"
 
-RUN apt -y update
-
-RUN apt -y update && \
-    groupadd spring && adduser --system spring && adduser spring spring && \
-    mkdir $APP_DIR && chown -R spring:spring $APP_DIR
-
-USER spring:spring
-
-WORKDIR $APP_DIR
-
+#
+# Develop env for VSCode
+#
+FROM build-jdk as develop
+WORKDIR /app
 EXPOSE 8080
 
 
-FROM develop AS builder
+#
+# build jar
+#
+FROM build-jdk AS builder
 USER root
-COPY ./app /usr/local/app
-WORKDIR /usr/local/app/demo
-# RUN id;whoami;pwd;ls -la
-RUN bash gradlew build
+COPY ./app /app
+WORKDIR /app/demo
+
+RUN sh gradlew build
+
+#
+# alpine mini jre
+#
+FROM alpine:3.10.1 as build-jre
+
+RUN apk update \
+ && apk --no-cache add openjdk11    \
+ && rm -rf /var/cache/apk/*
+
+RUN /usr/lib/jvm/java-11-openjdk/bin/jlink \
+     --module-path /usr/lib/jvm/java-11-openjdk/jmods \
+     --compress=2 \
+     --add-modules jdk.jfr,jdk.management.agent,java.base,java.logging,java.xml,jdk.unsupported,java.sql,java.naming,java.desktop,java.management,java.security.jgss,java.instrument \
+     --no-header-files \
+     --no-man-pages \
+     --output /opt/jdk-11-mini-runtime
+
+FROM alpine:3.10.1 as alpine-mini-jre
+
+ENV JAVA_HOME=/opt/jdk-11-mini-runtime
+ENV PATH="$PATH:$JAVA_HOME/bin"
+
+COPY --from=build-jre /opt/jdk-11-mini-runtime /opt/jdk-11-mini-runtime
 
 
-FROM openjdk:11-jre-slim as demo-app
+#
+# build container image
+#
+FROM alpine-mini-jre as demo-app
 
-ENV APP_DIR /usr/local/app
+ENV APP_DIR /app
 
-COPY --from=builder /usr/local/app/demo/build/libs/demo.jar /usr/local/app/
+COPY --from=builder /app/demo/build/libs/demo.jar /app/
+
+RUN adduser --system spring
+USER spring
 
 EXPOSE 8080
 
-ENTRYPOINT ["java","-jar","/usr/local/app/demo.jar"]
+ENTRYPOINT ["java","-jar","/app/demo.jar"]
 
 
 # docker build . --target demo-app -t demo-app
