@@ -39,4 +39,4 @@ ENTRYPOINT ["java","-jar","/usr/local/app/demo.jar"]
 
 
 # docker build . --target demo-app -t demo-app
-# docker run -it-p --rm  8070:8080 demo-app
+# docker run -it -p 8080:8080 --rm  demo-app
