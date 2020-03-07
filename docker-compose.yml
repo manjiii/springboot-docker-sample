@@ -1,0 +1,11 @@
+version: "3"
+
+services:
+  spring_demo:
+    build: .
+    target: develop
+    ports: 
+      - 8080:8080
+    volumes:
+      - ./app:/usr/local/app
+    tty: true
