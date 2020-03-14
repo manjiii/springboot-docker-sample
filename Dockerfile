@@ -4,7 +4,7 @@
 FROM alpine:3.10.1 as build-jdk
 
 RUN apk update && \
-    apk --no-cache add openjdk11 && \
+    apk --no-cache add openjdk11 git && \
     rm -rf /var/cache/apk/*
 
 ENV JAVA_HOME=/usr/lib/jvm/java-11-openjdk
@@ -24,7 +24,7 @@ EXPOSE 8080
 FROM build-jdk AS builder
 USER root
 COPY ./app /app
-WORKDIR /app/demo
+WORKDIR /app
 
 RUN sh gradlew build
 
@@ -56,19 +56,19 @@ COPY --from=build-jre /opt/jdk-11-mini-runtime /opt/jdk-11-mini-runtime
 #
 # build container image
 #
-FROM alpine-mini-jre as demo-app
+FROM alpine-mini-jre as spring-app
 
 ENV APP_DIR /app
 
-COPY --from=builder /app/demo/build/libs/demo.jar /app/
+COPY --from=builder /app/build/libs/spring-app.jar /app/
 
 RUN adduser --system spring
 USER spring
 
 EXPOSE 8080
 
-ENTRYPOINT ["java","-jar","/app/demo.jar"]
+ENTRYPOINT ["java","-jar","/app/spring-app.jar"]
 
 
-# docker build . --target demo-app -t demo-app
-# docker run -it -p 8080:8080 --rm  demo-app
+# docker build . --target spring-app -t spring-app
+# docker run -it -p 8080:8080 --rm  spring-app

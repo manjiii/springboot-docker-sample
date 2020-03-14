@@ -1,9 +1,9 @@
 {
-  "name": "SpringBoot Sample",
+  "name": "SpringBoot Application",
 	"dockerComposeFile": [
     "../docker-compose.yml"
   ],
-  "service": "spring_demo", 
+  "service": "spring_app", 
   // Default path to open when attaching to a new container.
   "workspaceFolder": "/app",
 

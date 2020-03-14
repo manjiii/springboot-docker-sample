@@ -10,6 +10,7 @@ public class IndexController {
     @RequestMapping({ "/", "/index" })
     public ModelAndView get(ModelAndView mav) {
         mav.setViewName("index");
+        System.out.println("aaa");
         return mav;
     }
 }

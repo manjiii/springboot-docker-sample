@@ -1,12 +1,12 @@
 version: "3.7"
 
 services:
-  spring_demo:
+  spring_app:
     build: 
       context: .
       target: develop
     ports: 
       - 8080:8080
     volumes:
-      - ./app:/app
+      - .:/app
     tty: true
