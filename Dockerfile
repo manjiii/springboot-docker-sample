@@ -14,6 +14,7 @@ ENV PATH="$PATH:$JAVA_HOME/bin"
 # Develop env for VSCode
 #
 FROM build-jdk as develop
+ENV APP_LOGGING_LEVEL DEBUG
 WORKDIR /app
 EXPOSE 8080
 
@@ -59,6 +60,7 @@ COPY --from=build-jre /opt/jdk-11-mini-runtime /opt/jdk-11-mini-runtime
 FROM alpine-mini-jre as spring-app
 
 ENV APP_DIR /app
+# ENV APP_LOGGING_LEVEL DEBUG
 
 COPY --from=builder /app/build/libs/spring-app.jar /app/
 
